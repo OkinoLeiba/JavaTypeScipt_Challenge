@@ -1,0 +1,737 @@
+// Each person in Italy has an unique identifying ID code issued by the national tax office after the birth registration: the Fiscal Code (Codice Fiscale).
+// Check the Resources tab for more info on this.
+
+// Given an object containing the personal data of a person (name, surname, gender and date of birth) return the 11 code characters as a string following these
+//  steps:
+
+// Generate 3 capital letters from the surname, if it has:
+
+// At least 3 consonants then the first three consonants are used. (Newman -> NWM).
+// Less than 3 consonants then vowels will replace missing characters in the same order they appear (Fox -> FXO | Hope -> HPO).
+// Less than three letters then "X" will take the third slot after the consonant and the vowel (Yu -> YUX).
+
+// Generate 3 capital letters from the name, if it has:
+
+// Exactly 3 consonants then consonants are used in the order they appear (Matt -> MTT).
+// More than 3 consonants then first, third and fourth consonant are used (Samantha -> SNT | Thomas -> TMS).
+// Less than 3 consonants then vowels will replace missing characters in the same order they appear (Bob -> BBO | Paula -> PLA).
+// Less than three letters then "X" will take the the third slot after the consonant and the vowel (Al -> LAX).
+
+// Generate 2 numbers, 1 letter and 2 numbers from date of birth and gender:
+
+// Take the last two digits of the year of birth (1985 -> 85).
+// Generate a letter corresponding to the month of birth (January -> A | December -> T) using the table for conversion included in the code.
+// For males take the day of birth adding one zero at the start if is less than 10 (any 9th day -> 09 | any 20th day -> 20).
+// For females take the day of birth and sum 40 to it (any 9th day -> 49 | any 20th day -> 60).
+// Examples
+
+
+// fiscalCode({
+//   name: "Matt",
+//   surname: "Edabit",
+//   gender: "M",
+//   dob: "1/1/1900"
+// }) ➞ "DBTMTT00A01"
+
+// fiscalCode({
+//   name: "Helen",
+//   surname: "Yu",
+//   gender: "F",
+//   dob: "1/12/1950"
+// }) ➞ "YUXHLN50T41"
+
+// fiscalCode({
+//   name: "Mickey",
+//   surname: "Mouse",
+//   gender: "M",
+//   dob: "16/1/1928"
+// }) ➞ "MSOMKY28A16"
+
+// Notes
+// Code letters must be uppercase.
+// Date of birth is given in D/M/YYYY format.
+// The conversion table for months is already in the starting code.
+// Y is not a vowel.
+
+function fiscalCode(code_object) {
+
+
+    const months = { 1: "A", 2: "B", 3: "C", 4: "D", 5: "E", 6: "H",
+    7: "L", 8: "M", 9: "P", 10: "R", 11: "S", 12: "T" };
+
+    const consonant_str_surname = code_object.surname.toLowerCase().replace(/[aeiou]/gi, "").trim();
+    const consonant_str_name = code_object.name.toLowerCase().replace(/[aeiou]/gi, "").trim();
+
+    const consonant_str = s => s.toLowerCase().replace(/[aeiou]/gi, "").trim();
+    const vowel_str = s => s.toLowerCase().replace(/[^aeiou]/gi, "").trim();
+
+    var test = code_object.surname.length < 3 ? (consonant_str(code_object.surname) + "x").slice(0, 3) : (consonant_str(code_object.surname)).slice(0, 3)
+
+    var test2 = vowel_str(code_object.surname)
+  
+
+  
+    var sub_surname = ""
+    if(code_object.surname.length < 3) {
+        sub_surname = code_object.surname.match(/[^aeiou]/i) + code_object.surname.match(/[aeiou]/i) + "x";
+    }
+    else {
+        if(consonant_str_surname.length >= 3) {
+            sub_surname = consonant_str_surname.substring(0,3) 
+        }
+        else if(consonant_str_surname.length < 3) {
+            sub_surname = consonant_str_surname + code_object.surname.match(/[aeiou]/i)
+        }
+        else {}
+    }
+
+    
+    var sub_name = ""
+    if(code_object.name.length < 3) {
+        sub_name = code_object.name.match(/[^aeiou]/i) + code_object.name.match(/[aeiou]/i) + "x";
+    }
+    else {
+        if(consonant_str_name.length == 3) {
+            sub_name = consonant_str_name;
+        }
+        else if(consonant_str_name.length > 3) {
+            sub_name = consonant_str_name[0] + consonant_str_name[2] + consonant_str_name[3]
+        }
+        else if(consonant_str_surname.length < 3) {
+            sub_name = consonant_str_name + code_object.name.match(/[aeiou]/i)
+        }
+        else {}
+    }
+
+
+    var date_str = code_object.dob.split("/");
+    var year_str = date_str[2];
+    var month_str = date_str[1];
+    var day_str = date_str[0];
+
+    var [day_str, month_str, year_str] = date_str = code_object.dob.split("/");
+
+    var year_str_sub = year_str.substring(2,year_str.length);
+
+;
+    var letter_month = months[month_str];
+    
+    var daybirth_str = ""
+    if(code_object.gender == "M" && day_str < 10) {
+        daybirth_str = "0" + day_str;
+    }
+    else if(code_object.gender == "M") {
+        daybirth_str = day_str;
+    }
+    else {
+        if(code_object.gender == "F") {
+            daybirth_str = (Number(day_str) + 40).toString();
+        }
+    }
+
+   
+
+    let fiscal_code= sub_surname.concat(sub_name, year_str_sub, letter_month, daybirth_str).toLocaleUpperCase();
+
+    return fiscal_code;
+  }
+
+
+
+fiscalCode({
+  name: "Matt",
+  surname: "Edabit",
+  gender: "M",
+  dob: "1/1/1900"
+});
+
+fiscalCode({
+  name: "Helen",
+  surname: "Yu",
+  gender: "F",
+  dob: "1/12/1950"
+});
+
+
+fiscalCode({
+  name: "Mickey",
+  surname: "Mouse",
+  gender: "M",
+  dob: "16/1/1928"
+});
+
+
+// Julius Caesar protected his confidential information by encrypting it using a cipher. Caesar's cipher (check Resources tab for more info) shifts each letter
+//  by a number of letters. If the shift takes you past the end of the alphabet, just rotate back to the front of the alphabet. In the case of a rotation by 
+// 3, w, x, y and z would map to z, a, b and c.
+
+// Create a function that takes a string s (text to be encrypted) and an integer k (the rotation factor). It should return an encrypted string.
+
+
+// caesarCipher("middle-Outz", 2) ➞ "okffng-Qwvb"
+
+// m -> o
+// i -> k
+// d -> f
+// d -> f
+// l -> n
+// e -> g
+// -    -
+// O -> Q
+// u -> w
+// t -> v
+// z -> b
+
+// caesarCipher("Always-Look-on-the-Bright-Side-of-Life", 5)
+// ➞ "Fqbfdx-Qttp-ts-ymj-Gwnlmy-Xnij-tk-Qnkj"
+
+// caesarCipher("A friend in need is a friend indeed", 20)
+// ➞ "U zlcyhx ch hyyx cm u zlcyhx chxyyx"
+// Notes
+// All test input will be a valid ASCII string.
+
+
+
+const caesarCipher = (message, shift) => {
+    // var letter = "x";
+    // var test = (122 - letter.charCodeAt(0) + 10) + 97;
+
+    let cipher = "";
+    
+    for(var letter of message) {
+        // test for uppercase letter by ascii code-decimal
+        if(letter.charCodeAt(0) >= 65 && letter.charCodeAt(0) <= 90) {
+            if((letter.charCodeAt(0) + shift) > 90) {
+                cipher += String.fromCharCode((65 + (letter.charCodeAt() - 65 + shift) % 26));
+            }
+            else {
+                cipher += String.fromCharCode(letter.charCodeAt(0) + shift);
+            }
+        }
+        // test for lowercase letter by ascii code-decimal
+        else if(letter.charCodeAt(0) >= 97 && letter.charCodeAt(0) <= 122) {
+            if((letter.charCodeAt(0) + shift) > 122) {
+            cipher += String.fromCharCode((97 + (letter.charCodeAt() - 97 + shift) % 26));
+            }
+            else {
+                cipher += String.fromCharCode(letter.charCodeAt(0) + shift);
+            }
+        }
+        else if(!(letter.charCodeAt(0) >= 65 && letter.charCodeAt(0) <= 90) && !(letter.charCodeAt(0) >= 97 && letter.charCodeAt(0) <= 122)) {
+            cipher += letter;
+        }
+        // execute and address later
+        else {
+            cipher.concat((String.fromCharCode(letter.charCodeAt(0) + shift)));
+        }
+        
+    }
+
+    let chipher2 = "";
+    for(var i = 0; i < message.length; i++) {
+        if(message.charCodeAt(i) > 90 || message.charCodeAt(i) > 122) {
+            chipher2 += String.fromCharCode(219 - message.charCodeAt(i) + shift);
+        }
+        else {
+            chipher2 += String.fromCharCode(message.charCodeAt(i) + shift);
+        }
+    }
+
+    message.replace(/[a-z]/gi, m => {
+        const c = m < "a" ? 65 : 97;
+        return String.fromCharCode((m.charCodeAt(0) - c + shift) % 26 + c)
+      });
+    // (97+(x.charCodeAt()-97+k) % 26
+
+}
+
+caesarCipher("middle-Outz", 2);
+
+caesarCipher("Always-Look-on-the-Bright-Side-of-Life", 5);
+
+caesarCipher("A friend in need is a friend indeed", 20);
+
+
+
+
+// An English text needs to be encrypted using Edabit’s encryption scheme. First, the spaces are removed from the text. Let L be the length of this text. 
+// Then, characters are written into a grid, whose rows and columns have the following constraints:
+
+// For example, the sentence "if man was meant to stay on the ground god would have given us roots", after removing spaces, is 54 characters long. The square 
+// root of 54 is between 7 and 8, so it is written in the form of a grid with 7 rows and 8 columns.
+
+// ifmanwas
+// meanttos
+// tayonthe
+// groundgo
+// dwouldha
+// vegivenu
+// sroots
+// Ensure that rows x column >= L
+// If multiple grids satisfy the above conditions, choose the one with the minimum area.
+// rows x columns >= L
+// The encoded message is obtained by displaying the characters in a column, inserting a space, and then displaying the next column and inserting a space, and 
+// so on. For example, the encoded message for the above rectangle is:
+
+// imtgdvs fearwer mayoogo anouuio ntnnlvt wttddes aohghn sseoau
+// Examples
+// encryption(“haveaniceday”) ➞ “hae and via ecy”
+
+// have
+// anic
+// eday
+
+// encryption(“feedthedog”) ➞ “fto ehg ee dd”
+
+// encryption(“chillout”) ➞ “clu hlt io”
+
+// encryption(“A Fool and His Money Are Soon Parted.”) ➞ "Anoea FdnSr oHeot oiyoe lsAnd aMrP."
+
+// Notes
+// Ensure capitalization remains the same in encrypted text.
+// Do not remove special characters.
+
+
+
+function encryption(str) {
+    var trim_str = str.trim().trimStart().trimEnd();
+
+    var col_num = Math.floor(Math.sqrt(Number(trim_str.length)));
+
+    var row_num = col_num + 1;
+    var iter = 0;
+    let encrypt_str = "";
+    var grid = [];
+    for(var i = 0, start = 0; i < row_num; i++) {    
+        for(var j = 0; j < col_num; j++) {
+            if(!(trim_str[iter] === undefined)) {
+                encrypt_str += trim_str[iter];
+                iter += row_num;
+            }
+            break
+        }
+        grid.push(encrypt_str);
+        iter = ++i;
+    }
+
+    for(var k = 0; k < col_num; k++) {
+
+        encrypt_str += trim_str[k];
+        
+        k += col_num;
+        
+
+        grid.push(encrypt_str)
+    }
+
+
+    for(var j = 0; j < col_num; j++) {
+        for(var k = 0, start = 0; k < row_num; k++) {
+            grid.push(trim_str.substring(start, col_num))
+            start += col_num;
+            col_num += col_num;
+        }
+        
+    }
+}
+
+
+
+
+// encryption("feedthedog");
+
+// Create a function that takes an Arabic number and converts it into a Roman number.
+
+
+// Notes
+// All roman numerals should be returned as uppercase.
+// The largest number that can be represented in this notation is 3,999.
+
+function convertToRoman(num) {
+    const roman_map = {1:"I", 2:"II", 3:"III", 4:"IV", 5:"V", 6:"VI", 7:"VII", 8:"VIII", 9:"IX", 10:"X"}
+    const roman_map2 = {50:"L", 100:"C", 500:"D", 1000:"M"}
+    
+    var roman_numerial = [];
+    for(var i = 0; i < Math.trunc((num/10)); i++) {
+        if(Math.trunc((num/10)) < 5) {
+            roman_numerial.push(roman_map[i*10])
+        }
+    }
+    for(var i = 0; i < (num/10) % 1; i++ ) {
+        roman_numerial.push(roman_map[i*10])
+    }
+    
+    return roman_numerial.join("")
+}
+
+
+function convertToRoman(num) {
+    var roman_map = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman_numerial = '',i;
+    for (i in roman_map) {
+      while (num >= roman_map[i]) {
+        roman_numerial += i;
+        num -= roman_map[i];
+      }
+    }
+    return roman_numerial;
+  }
+
+convertToRoman(5);
+
+convertToRoman(2);
+
+convertToRoman(12);
+
+convertToRoman(16);
+
+
+// Given an incomplete palindrome as a string, return the minimum letters needed to be added on to the end to make the string a palindrome.
+
+function minPalindromeSteps(s) {
+    var i = 0; var s =s.split(""); var p = []; var n = ""; s.forEach(element => { p.unshift(element)});
+    do {p.splice(i, 0, s[i]);s.reverse().splice(i, 0, p[i]);i++;s.reverse(); n+=s[i]; console.log(`Add ${i} letters: \"${n}\" to make ${p.join()}`);} while(s==p); 
+} 
+
+minPalindromeSteps("race");
+// Add 3 letters: "car" to make "racecar"
+
+minPalindromeSteps("mada");
+// Add 1 letter: "m" to make "madam"
+
+minPalindromeSteps("mirror");
+// Add 3 letters: "rim" to make "mirrorrim"
+
+
+// This robot roams around a 2D grid. It starts at (0, 0) facing North. After each time it moves, the robot rotates 90 degrees clockwise. Given the amount the robot has moved 
+// each time, you have to calculate the robot's final position.
+
+// To illustrate, if the robot is given the movements 20, 30, 10, 40 then it will move:
+
+// 20 steps North, now at (0, 20)
+// 30 steps East, now at (30, 20)
+// 10 steps South. now at (30, 10)
+// 40 steps West, now at (-10, 10)
+// ...and will end up at coordinates (-10, 10).
+
+
+
+const trackRobot = function Robot(...coord) {
+
+    var b = coord[0] - arguments[2];
+    var a = arguments[1] - coord[3];
+
+    var set_coord = new Set([a, b]);
+
+    var test1 = coord.forEach((e, i) => {if(i % 2 == 0) return e });
+
+    if(!(isNaN(a))) {var test2 = coord.filter((e, i) => {if(i % 2 == 0) return e }).reduceRight((e) => {return a += e;})}
+    else {a = 0}
+
+    if(!(isNaN(b))) {var test3 = coord.filter((e, i) => {if(!(i % 2 == 0)) return e }).reduceRight((e) => {return b += e;})}
+    else {b = 0}
+
+
+    if(isNaN(a) && isNaN(b)) console.log("No movement means the robot stays at (0, 0).")
+} 
+
+trackRobot(20, 30, 10, 40);
+
+trackRobot();
+// No movement means the robot stays at (0, 0).
+
+trackRobot(-10, 20, 10);
+// The amount to move can be negative.
+
+
+
+// Write a function that receives the time in 12-hour AM/PM format and returns a string representation of the time in military (24-hour) format.
+
+const convertTime = str_time => parseInt(str_time.substring(0,2)) + 12 == 24 ? str_time.replace(str_time.substring(0,2), "00").slice(0,8) : str_time.replace(str_time.substring(0,2), parseInt(str_time.substring(0,2)) + 12).slice(0,8)
+
+convertTime("07:05:45PM");
+
+convertTime("12:40:22AM");
+
+convertTime("12:45:54PM");
+
+
+
+
+// Odd numbers like to hangout with odd numbers. Even numbers like to hangout with even numbers.
+
+// A spot is an insertion between two numbers in an array. Given an array of n integers in length, there are n-1 spots available.
+
+// For instance:
+
+// [3, 4, 9, 10, 1]  // Array of 5 digits can also be thought of as...
+
+// [3, __ , 4, __ , 9, __, 10, __, 1]  // ...an array of 4 spots.
+// After a number is newly inserted into a spot, it's left neighbor is the number directly to the left of it and it's right neighbor is the number directly to the right of it.
+
+// For instance:
+
+// [3, 6, 4, 9, 10, 1]  // Left neighbor of 6 is 3, right neighbor of 6 is 4.
+
+// Odd numbers like having the following (left neighbor, right neighbor combinations): (odd, even), (even, odd), (odd, odd) .They dislike having both neighbors being even, or 
+// (even, even).
+
+// Similarly, even numbers like the following neighbor combinations: (even, odd), (odd, even), (even, even). They dislike having both neighbors being odd, or (odd, odd).
+
+// Given an array, calculate the number of liked spots.
+
+
+function availableSpots(arr, num) {
+    
+    var idx = 0, currCount = 0
+    arr.reduce((previousValue, currentValue, currentIndex, array, initialValue) => {
+        // if(num % 2 == 0) {if(((arr[index] % 2 == 0) && (num % 2 == 0)) || ((arr[index] % 2 == 1) && (num % 2 == 0))) {return currCount += 1}}
+        // else {if(((arr[index] % 2 == 1) && (num % 2 == 1)) || ((arr[index] % 2 == 0) && (num % 2 == 1))) {return currCount += 1} }
+
+        if(num % 2 == 0) {if((array[idx] % 2 == 0) || (array[idx+1] % 2 == 0)) {currCount += 1}}
+        else {if((array[idx] % 2 == 1) || (array[idx+1] % 2 == 1)) {currCount += 1}}
+        idx += 1
+    }
+    )
+
+    arr.map((element, index) => {
+    
+        if(num % 2 == 0) {if((arr[index] % 2 == 0) || (arr[index+1] % 2 == 0)) {currCount += 1}}
+        else {if((arr[index] % 2 == 1) || (arr[index+1] % 2 == 1)) {currCount += 1}}
+        idx += 1
+    }
+    )
+
+} 
+
+
+
+
+
+availableSpots([0, 4, 6, 8], 9);
+// 9 likes NONE of the following spots: [0, __, 4], [4, __ , 6], [6, __, 8] b/c all of his neighbors are even.
+
+availableSpots([0, 4, 6, 8], 12);
+// 12 likes ALL of the spots.
+
+availableSpots([4, 4, 4, 4, 5], 7);
+// 7 dislikes every spot except the last one at: [4, __, 5].
+
+availableSpots([4, 4], 8);
+
+
+
+
+
+
+// Write a function that moves all the zeroes to the end of an array. Do this without returning a copy of the input array.
+
+// Notes
+// You must mutate the original array.
+// Keep the relative order of the non-zero elements the same.
+
+const zeroesToEnd1 = (a) => {a.sort().forEach(element => {if(element == 0) {a.shift(); a.push(0);}})}
+
+const zeroesToEnd2 = (a) => {a.sort().map( (element, index, array) => {if(array[0] == 0) {a.splice(0,1); return a.push(0);}})}
+
+const zeroesToEnd3 = (a) => {for(var value of a) {if(value == 0) {delete a[value]; a.push(0);}}}
+
+zeroesToEnd1([1, 2, 0, 0, 4, 0, 5]);
+
+zeroesToEnd2([0, 0, 2, 0, 5]);
+
+zeroesToEnd3([4, 4, 5]);
+
+// zeroesToEnd([0, 0]);
+
+
+
+// Write a function that calculates overtime and pay associated with overtime.
+
+// Working 9 to 5: regular hours
+// After 5pm is overtime
+// Your function gets an array with 4 values:
+
+// Start of working day, in decimal format, (24-hour day notation)
+// End of working day. (Same format)
+// Hourly rate
+// Overtime multiplier
+// Your function should spit out:
+
+// $ + earned that day (rounded to the nearest hundredth)
+
+
+overTime([9, 17, 30, 1.5]);
+
+overTime([16, 18, 30, 1.8]);
+
+overTime([13.25, 15, 30, 1.5]);
+
+
+function overTime(arr_time) {
+    
+    var pay = arr_time[1] > 17 ? ((arr_time[1] - 17) * arr_time[3] * arr_time[2]) + ((arr_time[1] - arr_time[0]) * arr_time[2]).toFixed(2): ((arr_time[1] - arr_time[0]) * arr_time[2]).toFixed(2)
+
+    console.log(`$${pay}`)
+}
+
+
+
+// Create a function that accepts str and cases as parameters where the string is split into N distinct cases of equal length as shown:
+
+// Notes
+// If it's not possible to split the string as described, return ["Error"].
+
+
+splitNCases("Strengthened", 6);
+
+splitNCases("Unscrupulous", 2);
+
+splitNCases("Flavorless", 1);
+
+
+// splitNCases = new Function("str", "case", "if(cases % 2 == 0) {var i = 0; const split_arr = []; while(i != str.length) {split_arr.push(str.substring(i, i + str.length/cases)); i += str.length/cases;} return split_arr;} else if(cases === 1) {return str} else {return ["Error"];}")
+
+function splitNCases(str, cases) { 
+    if(cases % 2 == 0) {var i = 0; const split_arr = []; while(i != str.length) {split_arr.push(str.substring(i, i + str.length/cases)); i += str.length/cases;} return split_arr;} 
+    else if(cases === 1) {return str} else {return ["Error"];}
+}
+
+
+
+
+// Create a function that takes the dimensions of two triangles (as arrays) and checks if the first triangle fits into the second one.
+
+function doesTriangleFit(t1, t2) {
+    var sum1 = (t1[0] + t1[1] + t1[2]); var p1 = sum1/2; var a1 = Math.sqrt(Math.round((p1 * (p1 - t1[0]) * (p1 - t1[1]) * (p1 - t1[2]))))
+    var sum2 = (t2[0] + t2[1] + t2[2]); var p2 = sum2/2; var a2 = Math.sqrt((p2 * (p2 - t2[0]) * (p2 - t2[1]) * (p2 - t2[2])))
+    if(a1 <= a2) {return true} else {return false}
+}
+
+doesTriangleFit([1, 1, 1], [1, 1, 1]);
+
+doesTriangleFit([1, 1, 1], [2, 2, 2]);
+
+doesTriangleFit([1, 2, 3], [1, 2, 2]);
+
+doesTriangleFit([1, 2, 4], [1, 2, 6]);
+
+
+
+// Create a function that takes a string and returns an object. The returned object will have a common property for all detected type content named contentType the possible 
+// values for this property are "HTML", "CSS", "TEXT".
+
+// Your function should be able to detect HTML and CSS else it's just TEXT.
+// If you detect HTML the returned object will have a special property named "tags". "tags" is an object with all content tags name and how many times these tags were called
+//  in content (see example #3).
+// If you detect CSS, your returned object will have a special property named cssTargets. cssTargets is an object with all content targets name and how many times these tags 
+// were called in content (see example #2).
+// If you don't detect HTML or CSS, the content is detected as TEXT and object will have a special property named lineNumber (see example #1).
+
+
+// analyzeContent("this is a test\nSeems to work")
+// ➞ { contentType: "TEXT", lineNumber: 2 }
+
+// analyzeContent("body{blabla} a{color:#fff} a{ padding:0}")
+// ➞ { contentType: "CSS", cssTargets: { body: 1, a: 2 } }
+
+// analyzeContent("<html><div></div><div></div></html>")
+// ➞ { contentType: "HTML", tags: { html: 1, div: 2 } }
+
+// Notes
+// If HTML content has been detected the returned object couldn't have cssTargets property and lineNumber property and that's same for type of detection. Only the common 
+// property contentType stay inside the returned object.
+// <!DOCTYPE html> and comments shoudn't be detected.
+// The content can be minified or not as needed.
+
+
+function analyzeContent(content) {
+    Object.defineProperties(String.prototype, {
+        countContent: {
+            value: function(reg) {  
+                var count = 0; 
+                    if (reg.search())
+                        count++;
+                return count;
+            }
+        }
+    });
+
+
+    Object.defineProperties(String.prototype, {
+        countContent: {
+            value: function(reg) {
+                return this.filter(x => reg.search(/x/)).length;
+            }
+        }
+    });
+
+    // Specific string pattern and word or general?
+    // Override object: var result = { contentType: "" }?
+    var result = { contentType: "" }
+    if (content.search(/{[a-z]}/i)) {result = { contentType: "CSS", cssTargets: { body: String.countContent, a: countContent }}}
+    else if (content.search(/<[a-z]>/i)) {result = { contentType: "HTML", tags: { html: 1, div: countContent }}}
+    else {result = { contentType: "TEXT", lineNumber: countContent }}
+
+
+  
+	return result;
+}
+
+
+
+
+function NodeLinkList(element, next) {
+    this.element = element;
+    this.next = null;
+  }
+  
+  function LinkedList() {
+    let length = 0;
+    let head = null;
+    
+      // write your code below
+    this.push = function (element) {
+          let next = this.head;
+          this.head = new NodeLinkList(element, next)
+          length++;
+          return this.head;
+      };
+    // code ends here
+  
+    this.check = function () {
+      let current = head,
+        sol = [];
+      while (current) {
+        sol.push(current.element);
+        current = current.next;
+      }
+      return sol.join("");
+    };
+  }
+
+
+
+
+// Create a function that identifies the very first item that has recurred in the string argument passed. It returns the identified item with the index where it first appeared and the very next index where it resurfaced -- entirely as an object; or as an empty object if the passed argument is either null, undefined, empty string, or no recurring item exists.
+
+function recurIndex(s) {const recur = new Object(null); let recurArr = []; let i = 0,j = 0; try {s.split("").forEach(element => {while(i < 2) {recurArr.push(s.indexOf(element, i)); i++;}
+recur[element] = recurArr; recur.valueOf()
+});} catch(err) {err.name;TypeError("Null Value, Error Caught!")}/*s.split("").indexOf(s, 2)*/ return recur;
+
+}
+
+
+
+recurIndex("DXTDXTXDTXD");
+// D first appeared at index 0, resurfaced at index 3
+// T appeared and resurfaced at indices 3 and 6 but D completed the cycle first
+
+recurIndex("YXZXYTUVXWV");
+
+recurIndex("YZTTZMNERXE");
+
+recurIndex("AREDCBSDERD");
+
+recurIndex("");
+
+recurIndex(null);
